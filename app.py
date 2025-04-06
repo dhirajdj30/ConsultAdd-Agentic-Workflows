@@ -7,21 +7,22 @@ from eligiblityAgent import eligibilityAgent
 from checklistAgent import checklistAgent
 from riskAgent import risk_analysis_agent
 from extractEligibityCriteria import extract_eligibility_criteria
+from marketSearchAgent import market_search_agent
 app = FastAPI(
     title="RFP Automation Backend",
     description="ConsultAdd's GenAI Assistant for RFP Analysis",
-    version="1.0"
 )
 
 # Input schema for all endpoints
 class RFPRequest(BaseModel):
     query: str = "analyze this RFP for the task"
 
+
 # 1. Eligibility Check Endpoint
 @app.post("/eligibility")
 def eligibility_check():
     try:
-        eligibility_criteria = extract_eligibility_criteria("./Data/ineligible.pdf")
+        eligibility_criteria = extract_eligibility_criteria()
         result = eligibilityAgent(eligibility_criteria)
         return {"status": "success", "result": result}
     except Exception as e:
@@ -31,7 +32,8 @@ def eligibility_check():
 @app.post("/checklist")
 def checklist_gen():
     try:
-        result = checklistAgent()
+        path = "./VectorDB/RPF_Uploadded"
+        result = checklistAgent(path)
         return {"status": "success", "result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -40,11 +42,21 @@ def checklist_gen():
 @app.post("/risks")
 def risk_analysis():
     try:
-        result = risk_analysis_agent()
+        path = "./VectorDB/RPF_Uploadded"
+        result = risk_analysis_agent(path)
         return {"status": "success", "result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.post("/generate-market-report")
+async def generate_market_report():
+    try:
+        report = market_search_agent()
+        return {"status": "success", "report": report}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+    
 # Root Endpoint
 @app.get("/")
 def read_root():

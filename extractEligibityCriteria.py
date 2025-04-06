@@ -1,4 +1,4 @@
-from langchain.document_loaders import PyPDFLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -15,9 +15,9 @@ def remove_think_tags(text):
 
 
 
-def extract_eligibility_criteria(rfp_pdf_path: str):
+def extract_eligibility_criteria():
     # Load and split RFP PDF
-    loader = PyPDFLoader(rfp_pdf_path)
+    loader = PyPDFLoader("Downloaded/uploaded_rfp.pdf")
     docs = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100).split_documents(loader.load())
 
     # Create vector DB
@@ -26,21 +26,25 @@ def extract_eligibility_criteria(rfp_pdf_path: str):
     retriever = db.as_retriever(search_kwargs={"k": 5})
 
     # Define LLM & Prompt
-    llm = ChatGroq(model_name="deepseek-r1-distill-llama-70b", temperature=0.2)
+    llm = ChatGroq(model_name="deepseek-r1-distill-llama-70b", temperature=0.)
     prompt = PromptTemplate.from_template("""
-    You are a compliance expert reviewing an RFP.
+   You are a compliance expert using Generative AI and Retrieval-Augmented Generation (RAG) to analyze an RFP and extract mandatory eligibility criteria. Your task is to automate and simplify the RFP analysis process, ensuring accuracy and efficiency.
+    **Extract the mandatory eligibility criteria** from the context, including:
+    - **Required certifications** (e.g., ISO, CMMI, 8(a), etc.)
+    - **Past performance or years of experience** (e.g., "5+ years of experience in IT consulting")
+    - **Technical or staffing requirements** (e.g., "Must have a team of 10 certified developers")
+    - **Disqualifiers** (e.g., "Cannot have any unresolved legal disputes")
 
-    Extract the **mandatory eligibility criteria** from the context, including:
-    - Required certifications
-    - Past performance or years of experience
-    - Technical or staffing requirements
-    - Disqualifiers
-    Return the result as a clean bullet-point list.
+    **Output Requirements:**
+    1. Return the criteria as a clean, organized bullet-point list.
+    2. Highlight any ambiguous or unclear criteria that require further clarification.
+    3. Identify potential gaps between the criteria and ConsultAdd's company profile (if provided).
+    4. Provide a brief summary of the findings to support decision-making.
 
-    Context:
+    **Context:**
     {context}
 
-    Question: What are the mandatory eligibility criteria for applying to this RFP?
+    **Question:** What are the mandatory eligibility criteria for applying to this RFP?
     """)
 
     # Run RetrievalQA

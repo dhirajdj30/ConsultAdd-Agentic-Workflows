@@ -54,3 +54,7 @@ if st.button("📋 Generate Submission Checklist"):
 if st.button("⚠️ Analyze Contract Risks"):
     res = requests.post("http://localhost:8000/risks")
     st.write(res.json())
+
+if st.button("📊 Generate Market Report"):
+    res = requests.post("http://localhost:8000/generate-market-report")
+    st.write(res.json())
