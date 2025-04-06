@@ -6,7 +6,7 @@ import re
 
 # 1. Load embedding model and vector DB
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-vector_db = FAISS.load_local("./outputs/faiss_rfp_index_el1", embedding_model, allow_dangerous_deserialization=True)
+vector_db = FAISS.load_local("./VectorDB/faiss_rfp_index_el1", embedding_model, allow_dangerous_deserialization=True)
 retriever = vector_db.as_retriever(search_kwargs={"k": 7})
 
 # 2. LLM Setup (ChatGroq)

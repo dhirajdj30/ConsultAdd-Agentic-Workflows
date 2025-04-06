@@ -10,10 +10,10 @@ from langchain.schema import Document
 embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 # === Load RFP Vector DB ===
-rfp_db = FAISS.load_local("./outputs/faiss_rfp_index_not_el", embedding_model, allow_dangerous_deserialization=True)
+rfp_db = FAISS.load_local("./VectorDB/faiss_rfp_index_not_el", embedding_model, allow_dangerous_deserialization=True)
 
 # === Load Company Data Vector DB ===
-company_db = FAISS.load_local("./outputs/faiss_company_index", embedding_model, allow_dangerous_deserialization=True)
+company_db = FAISS.load_local("./VectorDB/faiss_company_index", embedding_model, allow_dangerous_deserialization=True)
 
 
 

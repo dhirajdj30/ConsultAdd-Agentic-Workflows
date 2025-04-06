@@ -18,7 +18,7 @@ def remove_think_tags(text):
 # 1. Load embedding model
 def checklistAgent():
     embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    rfp_db = FAISS.load_local("./outputs/faiss_rfp_index_el1", embedding_model, allow_dangerous_deserialization=True)
+    rfp_db = FAISS.load_local("./VectorDB/faiss_rfp_index_el1", embedding_model, allow_dangerous_deserialization=True)
 
     # 2. Load LLM
     llm = ChatGroq(
