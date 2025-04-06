@@ -1,6 +1,6 @@
 from langchain.prompts import PromptTemplate
-from langchain.vectorstores import FAISS
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_groq import ChatGroq
 import os
@@ -18,7 +18,7 @@ def remove_think_tags(text):
 # 1. Load embedding model
 def checklistAgent():
     embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    rfp_db = FAISS.load_local("./VectorDB/faiss_rfp_index_el1", embedding_model, allow_dangerous_deserialization=True)
+    rfp_db = FAISS.load_local("./VectorDB/RPF_Uploadded", embedding_model, allow_dangerous_deserialization=True)
 
     # 2. Load LLM
     llm = ChatGroq(
