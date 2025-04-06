@@ -1,16 +1,9 @@
-from langchain.vectorstores import FAISS
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
 import re
 
-# 1. Load embedding model and vector DB
-embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-vector_db = FAISS.load_local("./VectorDB/faiss_rfp_index_el1", embedding_model, allow_dangerous_deserialization=True)
-retriever = vector_db.as_retriever(search_kwargs={"k": 7})
-
-# 2. LLM Setup (ChatGroq)
-llm = ChatGroq(model_name="deepseek-r1-distill-llama-70b", temperature=0.3)
 def remove_think_tags(text):
     # This pattern matches anything between <think> and </think>, including newlines
     pattern = r"<think>.*?</think>"
@@ -20,6 +13,13 @@ def remove_think_tags(text):
 
 # 3. Risk Analysis Prompt
 def risk_analysis_agent():
+    # 1. Load embedding model and vector DB
+    embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    vector_db = FAISS.load_local("./VectorDB/RPF_Uploadded", embedding_model, allow_dangerous_deserialization=True)
+    retriever = vector_db.as_retriever(search_kwargs={"k": 7})
+
+    # 2. LLM Setup (ChatGroq)
+    llm = ChatGroq(model_name="deepseek-r1-distill-llama-70b", temperature=0.3)
     prompt_template = PromptTemplate.from_template("""
     You are a legal risk advisor analyzing U.S. Government RFPs for the company ConsultAdd.
 

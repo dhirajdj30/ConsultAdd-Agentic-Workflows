@@ -1,41 +1,9 @@
 from langchain.chains import RetrievalQA
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
-from langchain.vectorstores import FAISS
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.retrievers.multi_query import MultiQueryRetriever
-from langchain.schema import Document
-
-# === Load Embeddings ===
-embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-
-# === Load RFP Vector DB ===
-rfp_db = FAISS.load_local("./VectorDB/faiss_rfp_index_not_el", embedding_model, allow_dangerous_deserialization=True)
-
-# === Load Company Data Vector DB ===
-company_db = FAISS.load_local("./VectorDB/faiss_company_index", embedding_model, allow_dangerous_deserialization=True)
-
-
-
-# === Load LLM ===
-llm = ChatGroq(
-    model_name="deepseek-r1-distill-llama-70b",
-    temperature=0.7
-)
-
-# === Create MultiQuery Retriever for RFP DB ===
-multi_retriever_rfp = MultiQueryRetriever.from_llm(
-    retriever=rfp_db.as_retriever(search_kwargs={"k": 4}),
-    llm=llm
-)
-
-# === Create MultiQuery Retriever for Company DB ===
-multi_retriever_company = MultiQueryRetriever.from_llm(
-    retriever=company_db.as_retriever(search_kwargs={"k": 4}),
-    llm=llm
-)
-
-
 import re
 def remove_think_tags(text):
     # This pattern matches anything between <think> and </think>, including newlines
@@ -43,10 +11,43 @@ def remove_think_tags(text):
     cleaned_text = re.sub(pattern, "", text, flags=re.DOTALL)
     return cleaned_text.strip()
 
+# === Load Embeddings ===
+def eligibilityAgent(eligibility_criteria):
+    embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+    # === Load RFP Vector DB ===
+    rfp_db = FAISS.load_local("./VectorDB/RPF_Uploadded", embedding_model, allow_dangerous_deserialization=True)
+
+    # === Load Company Data Vector DB ===
+    company_db = FAISS.load_local("./VectorDB/Company_Uploaded", embedding_model, allow_dangerous_deserialization=True)
+
+
+
+    # === Load LLM ===
+    llm = ChatGroq(
+        model_name="deepseek-r1-distill-llama-70b",
+        temperature=0.7
+    )
+
+    # === Create MultiQuery Retriever for RFP DB ===
+    multi_retriever_rfp = MultiQueryRetriever.from_llm(
+        retriever=rfp_db.as_retriever(search_kwargs={"k": 4}),
+        llm=llm
+    )
+
+    # === Create MultiQuery Retriever for Company DB ===
+    multi_retriever_company = MultiQueryRetriever.from_llm(
+        retriever=company_db.as_retriever(search_kwargs={"k": 4}),
+        llm=llm
+    )
+
+
+
+
 
 
     # === Fetch Documents from both DBs ===
-def eligibilityAgent(eligibility_criteria):
+
     query = "Is ConsultAdd eligible to apply for this RFP?"
     rfp_docs = multi_retriever_rfp.get_relevant_documents(query)
     company_docs = multi_retriever_company.get_relevant_documents(query)
