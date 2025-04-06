@@ -15,7 +15,7 @@ def remove_think_tags(text):
 
 
 
-def extract_eligibility_to_txt(rfp_pdf_path: str, output_txt_path: str):
+def extract_eligibility_criteria(rfp_pdf_path: str):
     # Load and split RFP PDF
     loader = PyPDFLoader(rfp_pdf_path)
     docs = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100).split_documents(loader.load())
@@ -52,11 +52,4 @@ def extract_eligibility_to_txt(rfp_pdf_path: str, output_txt_path: str):
     )
     result = qa_chain.invoke({"query": "What are the mandatory eligibility criteria?"})
     cleaned_eligblity_criteria = remove_think_tags(result["result"])
-    # Save to .txt
-
-    with open(output_txt_path, "w") as f:
-        f.write(cleaned_eligblity_criteria)
-    print(f"✅ Eligibility criteria saved to: {output_txt_path}")
-
-# Run it
-extract_eligibility_to_txt("./Data/ineligible.pdf", "ineligible.txt")
+    return cleaned_eligblity_criteria
