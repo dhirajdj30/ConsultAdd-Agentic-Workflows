@@ -5,8 +5,7 @@ from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain_groq import ChatGroq
 import os
 import re
-# Setup: Ensure output directory exists
-os.makedirs("outputs", exist_ok=True)
+
 
 def remove_think_tags(text):
     # This pattern matches anything between <think> and </think>, including newlines
@@ -16,9 +15,9 @@ def remove_think_tags(text):
 
 
 # 1. Load embedding model
-def checklistAgent():
+def checklistAgent(path: str):
     embedding_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    rfp_db = FAISS.load_local("./VectorDB/RPF_Uploadded", embedding_model, allow_dangerous_deserialization=True)
+    rfp_db = FAISS.load_local( path, embedding_model, allow_dangerous_deserialization=True)
 
     # 2. Load LLM
     llm = ChatGroq(
@@ -34,22 +33,27 @@ def checklistAgent():
 
     # 4. Define prompt template (human-readable checklist format)
     prompt_template = PromptTemplate.from_template("""
-    You are an AI assistant tasked with reviewing a government RFP document.
+        You are an AI assistant using Generative AI and Retrieval-Augmented Generation (RAG) to analyze a government RFP document. Your task is to automate and simplify the RFP analysis process by generating a detailed submission checklist in HTML format.
 
-    From the RFP context below, generate a **submission checklist** with clearly described requirements in human-readable bullet points.
+        **Instructions:**
+        1. Review the RFP context provided and extract all submission requirements.
+        2. Organize the information into a structured HTML checklist.
+        3. Focus on the following key areas:
+        - **Document Formatting Rules:** Include font type, size, spacing, margins, page limits, and any specific layout instructions.
+        - **Required Attachments:** List all necessary forms, resumes, certifications, and other documents.
+        - **Structure/Layout Expectations:** Detail the required sections, Table of Contents (TOC), section naming conventions, and any specific formatting for each section.
+        - **Submission Method and Deadlines:** Specify the method of submission (email, online portal, physical mail) and the exact deadline date and time.
+        4. Use bullet points for clarity and ensure each requirement is clearly described.
+        5. Do not assume any information not explicitly mentioned in the RFP context. If a detail is unclear or missing, note it as "Not specified."
+        6. Format the final checklist in HTML, ensuring it is clean and easy to read.
 
-    Focus on:
-    - Document formatting rules (font, spacing, page limits, etc.)
-    - Required forms, resumes, certifications, etc.
-    - Structure or layout expectations (TOC, section naming, etc.)
-    - Submission method (email, portal, physical mail), deadlines
+        **RFP Context:**
+        {rfp_context}
 
-    Use bullet points. Do **not** assume anything. If something is not mentioned, skip it.
-
-    RFP Context:
-    {rfp_context}
-                                                   
-    all should be in html format
+        **Output Requirements:**
+        - Provide the checklist in HTML format.
+        - Ensure all extracted requirements are accurately represented.
+        - Highlight any potential ambiguities or missing information that could impact submission.
     """)
 
     # 5. Perform multi-query retrieval

@@ -41,11 +41,6 @@ def eligibilityAgent(eligibility_criteria):
         llm=llm
     )
 
-
-
-
-
-
     # === Fetch Documents from both DBs ===
 
     query = "Is ConsultAdd eligible to apply for this RFP?"
@@ -62,25 +57,46 @@ def eligibilityAgent(eligibility_criteria):
 
     # === Prompt Template ===
     prompt_template = PromptTemplate.from_template(f"""
-    You are an expert compliance agent evaluating whether ConsultAdd is eligible to apply for a government RFP.
+        You are an expert compliance agent responsible for evaluating whether ConsultAdd is eligible to apply for a government RFP. Your task is to automate and simplify the RFP analysis process using Generative AI and Retrieval-Augmented Generation (RAG) to ensure accuracy and efficiency.
+        **Eligibility Criteria (from the RFP):**
+        {eligibility_criteria}
 
-    Below are the **Eligibility Criteria** extracted from the RFP:
-    {eligibility_criteria}
+        **Company Profile:**
+        {company_context}
 
-    Your task:
-    1. Evaluate the criteria against the company profile.
-    2. Use the **RFP context** and **Company Profile** to support your reasoning.
-    3. Mark each criterion as ✅ (met) or ❌ (unmet).
-    4. If some information is not clearly available, assume "likely met" if the context is relevant.
+        **Your Task:**
 
-    RFP Context:
-    {{rfp_context}}
+        1. **Verify Legal Eligibility:**
+        - Evaluate each criterion against ConsultAdd's company profile.
+        - Use RFP context and company data to support your reasoning.
+        - Mark each criterion as ✅ (met) or ❌ (unmet).
+        - If information is unclear, assume "likely met" if relevant.
 
-    Company Profile Context:
-    {{company_context}}
+        2. **Extract Mandatory Eligibility Criteria:**
+        - Scan and summarize must-have qualifications, certifications, and experience required to bid.
+        - Flag missing requirements to prevent wasted effort on ineligible proposals.
 
-    Your Answer (Start with 'Yes' or 'No', then give reasoning):
-    Is ConsultAdd eligible to apply for this RFP?
+        3. **Generate Submission Checklist:**
+        - Extract and structure RFP submission requirements, including document format, attachments, and forms.
+
+        4. **Analyze Contract Risks:**
+        - Identify biased clauses that could disadvantage ConsultAdd.
+        - Suggest modifications to balance contract terms.
+
+        **Eligibility Threshold:**
+        - If 80-85% or more of the criteria are met, mark as eligible.
+
+        **RFP Context:**
+        {{rfp_context}}
+
+        **Company Profile Context:**
+        {{company_context}}
+
+        **Your Answer:**
+        1. List each criterion with its status (✅ or ❌) and brief justification.
+        2. Calculate the percentage of met criteria.
+        3. Final Eligibility: Yes or No.
+        4. Provide a concise summary explaining the eligibility decision.
     """)
 
     # === Create Custom QA Chain ===
